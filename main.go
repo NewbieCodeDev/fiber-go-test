@@ -4,12 +4,26 @@ import ("github.com/gofiber/fiber/v2")
 
 
 // fiber is framework like express.js
+/* concept -- > declare struct for collect data , req.body to struct*/
+
+// Book struct to hold book data
+type Book struct {
+	ID     int    `json:"id"`
+	Title  string `json:"title"`
+	Author string `json:"author"`
+}
+
+var books []Book
 
 func main() {
 	app := fiber.New()
 
-	app.Get("/hello",func(c *fiber.Ctx) error{
-		return c.SendString("hello World!")
+	books = append(books, Book{ID:1, Title: "Coder", Author:"New"})
+	books = append(books, Book{ID:2, Title: "Sleep", Author:"New"})
+
+	
+	app.Get("/books",func(c *fiber.Ctx) error{
+		return c.JSON(books)
 	})
 
 	app.Listen(":8080")
