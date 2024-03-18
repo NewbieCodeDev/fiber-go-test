@@ -21,13 +21,39 @@ func main() {
 	books = append(books, Book{ID:1, Title: "Coder", Author:"New"})
 	books = append(books, Book{ID:2, Title: "Sleep", Author:"New"})
 
+	app.Get("/books",getBooks)
+	app.Get("/books/:id",getBook)
 	
-	app.Get("/books",func(c *fiber.Ctx) error{
-		return c.JSON(books)
-	})
+
 
 	app.Listen(":8080")
 }
+
+func getBooks(c *fiber.Ctx) error{
+		
+		return c.JSON(books)
+	}
+
+func getBook(c *fiber.Ctx) error{
+		bookId , err := c.ParamsInt("id",0)
+		
+		if err != nil{
+			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+		}
+
+		for _, book := range books{
+			if book.ID == bookId{
+				return c.JSON(book)
+			}
+		}
+
+		return c.SendStatus(fiber.StatusNotFound)
+		
+		
+		
+		
+	}
+
 
 
 /* code before use Fiber
