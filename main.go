@@ -1,8 +1,12 @@
 package main
 
 import (
+	"log"
+	"os"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/template/html/v2"
+	"github.com/joho/godotenv"
 )
 
 // fiber is framework like express.js
@@ -19,7 +23,9 @@ var books []Book
 
 func main() {
 
-
+	if err := godotenv.Load(); err != nil{
+		log.Fatal("load .env error")
+	}
 	engine := html.New("./views", ".html") //ระบุ path and filetype
 	app := fiber.New(fiber.Config{Views: engine})
 
@@ -34,6 +40,8 @@ func main() {
 
 	app.Post("/upload", uploadFile)
 	app.Get("/test-html", testHtml)
+
+	app.Get("/getEnv",getEnv)
 
 	app.Listen(":8080")
 }
@@ -64,6 +72,9 @@ func testHtml(c *fiber.Ctx) error {
 	})
 }
 
+func getEnv(c *fiber.Ctx) error{
+	return c.JSON(fiber.Map{"SECRET" : os.Getenv("SECRET")})
+}
 /* code before use Fiber
 func helloHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/hello" {
