@@ -1,6 +1,7 @@
 package main
 
-import ("github.com/gofiber/fiber/v2")
+import ("github.com/gofiber/fiber/v2"
+		"strconv")
 
 
 // fiber is framework like express.js
@@ -23,6 +24,8 @@ func main() {
 
 	app.Get("/books",getBooks)
 	app.Get("/books/:id",getBook)
+	app.Post("/books",createBook)
+	app.Put("/books/:id",updateBook)
 	
 
 
@@ -53,6 +56,40 @@ func getBook(c *fiber.Ctx) error{
 		
 		
 	}
+
+func createBook(c *fiber.Ctx) error{
+	book := new(Book)
+	if err := c.BodyParser(book) ; err != nil{
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}   //แปลงข้อมูลจาก body req --> map to struct
+	books = append(books, *book)
+	return c.JSON(book)
+}
+
+func updateBook(c *fiber.Ctx) error{
+	id , err := strconv.Atoi(c.Params("id"))
+	
+	if err != nil{
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+
+	bookUpdate := new(Book)
+	if err := c.BodyParser(bookUpdate); err != nil{
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+	
+	
+	for i, book := range books{
+		if book.ID == id {
+			books[i].Title = bookUpdate.Title
+			books[i].Author = bookUpdate.Author
+			return c.JSON(books)
+		}
+	}
+
+	return c.SendStatus(fiber.StatusNotFound)
+	
+}
 
 
 
