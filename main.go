@@ -1,6 +1,9 @@
 package main
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/template/html/v2"
+)
 
 // fiber is framework like express.js
 /* concept -- > declare struct for collect data , req.body to struct*/
@@ -15,7 +18,10 @@ type Book struct {
 var books []Book
 
 func main() {
-	app := fiber.New()
+
+
+	engine := html.New("./views", ".html") //ระบุ path and filetype
+	app := fiber.New(fiber.Config{Views: engine})
 
 	books = append(books, Book{ID: 1, Title: "Coder", Author: "New"})
 	books = append(books, Book{ID: 2, Title: "Sleep", Author: "New"})
@@ -26,28 +32,36 @@ func main() {
 	app.Put("/books/:id", updateBook)
 	app.Delete("/books/:id", deleteBook)
 
-	app.Post("/upload",uploadFile)
+	app.Post("/upload", uploadFile)
+	app.Get("/test-html", testHtml)
 
 	app.Listen(":8080")
 }
 
-func uploadFile(c *fiber.Ctx) error{
+func uploadFile(c *fiber.Ctx) error {
 	// input data from image key ---> image:
-	file , err := c.FormFile("image")
+	file, err := c.FormFile("image")
 
-	if err != nil{
+	if err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
 
 	// save under folder
-	err = c.SaveFile(file,"./uploads/" + file.Filename)
+	err = c.SaveFile(file, "./uploads/"+file.Filename)
 
-	if err != nil{
-		return 	c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 
 	}
 	return c.SendString("File Uploaded !")
 
+}
+
+func testHtml(c *fiber.Ctx) error {
+	return c.Render("index", fiber.Map{
+		"Title": "You Can Do It GIRL !!",
+		"Greet_Human": "Halooo hoomann hehe",
+	})
 }
 
 /* code before use Fiber
